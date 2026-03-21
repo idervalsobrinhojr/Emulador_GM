@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Sorteador Narrativo · Tensão · Medo · Esperança · Reviravolta</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(145deg, #1a2a3a 0%, #0f1a24 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Roboto, system-ui, 'Helvetica Neue', sans-serif;
+            padding: 1.5rem;
+        }
+
+        .card {
+            max-width: 1100px;
+            width: 100%;
+            background: #fef9e8;
+            background-image: radial-gradient(circle at 10% 20%, rgba(255,245,215,0.6) 2%, transparent 2.5%);
+            background-size: 28px 28px;
+            border-radius: 3rem;
+            box-shadow: 0 25px 45px -12px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,200,0.6);
+            padding: 2rem 2rem 2.2rem;
+            transition: all 0.2s;
+        }
+
+        h1 {
+            font-size: 1.9rem;
+            font-weight: 600;
+            text-align: center;
+            color: #2c2418;
+            letter-spacing: -0.3px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        h1 span {
+            background: #d9c5a7;
+            font-size: 1rem;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            font-weight: 400;
+            color: #3e2c1c;
+        }
+
+        .sub {
+            text-align: center;
+            color: #6b4e2e;
+            font-style: italic;
+            margin-bottom: 2rem;
+            border-bottom: 1px dashed #cdba8f;
+            padding-bottom: 0.7rem;
+        }
+
+        /* caixa de texto principal */
+        .textbox-container {
+            margin-bottom: 2.2rem;
+        }
+
+        .caixa-texto {
+            width: 100%;
+            height: 380px;
+            background: #fffcf0;
+            border: 3px solid #e2cfaa;
+            border-radius: 2rem;
+            padding: 1.5rem 2rem;
+            font-size: 1.1rem;
+            line-height: 1.55;
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            resize: vertical;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.02), 0 6px 12px rgba(0,0,0,0.1);
+            transition: 0.1s;
+            color: #2a241c;
+            font-weight: 500;
+        }
+
+        .caixa-texto:focus {
+            outline: none;
+            border-color: #b88b4a;
+            background: #fffff7;
+        }
+
+        /* grade de botões */
+        .botoes-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0 1rem;
+        }
+
+        .btn {
+            border: none;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 0.9rem 1.6rem;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+            background: #f0e1ca;
+            color: #2c2b26;
+            border: 1px solid #e7d2ae;
+            font-family: inherit;
+            letter-spacing: 0.3px;
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+        }
+
+        .btn-tensao { background: #ffd966; color: #3d2b1a; border-color: #e2b551; }
+        .btn-falha-medo { background: #9e6b5e; color: white; border-color: #7a4c3f; box-shadow: 0 5px 0 #4f2f25; }
+        .btn-sucesso-medo { background: #b48c5c; color: white; border-color: #8f673c; }
+        .btn-sucesso-esperanca { background: #7c9c6e; color: white; border-color: #5b7e4c; }
+        .btn-falha-esperanca { background: #5f8b6f; color: white; border-color: #3f684b; }
+        .btn-reviravolta { background: #aa7b5d; color: white; border-color: #7e583f; }
+        .btn-refresh { background: #2c3e2f; color: #f5e7cf; border-color: #1e2c20; box-shadow: 0 5px 0 #1a261c; padding: 0.9rem 2rem; }
+
+        .btn-refresh:hover { background: #3f5a41; transform: translateY(-1px); box-shadow: 0 6px 0 #1a261c; }
+        .btn-tensao:hover, .btn-falha-medo:hover, .btn-sucesso-medo:hover, .btn-sucesso-esperanca:hover, .btn-falha-esperanca:hover, .btn-reviravolta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+            filter: brightness(1.02);
+        }
+
+        /* rodapé */
+        .footer-note {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #7b6b50;
+            border-top: 1px solid #eedbbc;
+            padding-top: 1rem;
+        }
+
+        /* modal customizada (janela flutuante) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-box {
+            background: #fff9ef;
+            border-radius: 2rem;
+            max-width: 450px;
+            width: 90%;
+            padding: 2rem 2rem 1.8rem;
+            text-align: center;
+            box-shadow: 0 25px 40px rgba(0,0,0,0.3);
+            border: 2px solid #e9cf9e;
+        }
+
+        .modal-box p {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            color: #2f241a;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 0.7rem 2rem;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .modal-btn-cancel {
+            background: #b0a088;
+            color: white;
+        }
+
+        .modal-btn-confirm {
+            background: #7c4e2c;
+            color: white;
+        }
+
+        .modal-btn:hover {
+            filter: brightness(0.92);
+            transform: scale(0.97);
+        }
+
+        @media (max-width: 680px) {
+            .card { padding: 1.5rem; }
+            .btn { padding: 0.7rem 1.2rem; font-size: 0.85rem; }
+            .caixa-texto { height: 320px; font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>
+        🎭 SORTEADOR NARRATIVO
+        <span>tensão · medo · esperança</span>
+    </h1>
+    <div class="sub">clique nos botões — resultados aparecem na caixa de texto abaixo</div>
+
+    <!-- CAIXA DE TEXTO CENTRAL (extenso) -->
+    <div class="textbox-container">
+        <textarea id="resultArea" class="caixa-texto" placeholder="⚡ Os resultados dos testes aparecerão aqui...&#10;&#10;Escolha um botão para gerar tensão, falhas, sucessos ou reviravoltas."></textarea>
+    </div>
+
+    <!-- BOTÕES -->
+    <div class="botoes-grid">
+        <button id="btnTensao" class="btn btn-tensao">🎲 Teste de tensão da cena</button>
+        <button id="btnFalhaMedo" class="btn btn-falha-medo">😨 Falha com Medo</button>
+        <button id="btnSucessoMedo" class="btn btn-sucesso-medo">😰 Sucesso com Medo</button>
+        <button id="btnSucessoEsperanca" class="btn btn-sucesso-esperanca">✨ Sucesso com Esperança</button>
+        <button id="btnFalhaEsperanca" class="btn btn-falha-esperanca">🌟 Falha com Esperança</button>
+        <button id="btnReviravolta" class="btn btn-reviravolta">🌀 REVIRAVOLTA</button>
+        <button id="btnRefresh" class="btn btn-refresh">⟳ Refresh</button>
+    </div>
+    <div class="footer-note">
+        💡 "Falha com Medo" e "Sucesso com Medo" podem incluir efeitos adicionais (*) explicados junto ao resultado.
+    </div>
+</div>
+
+<!-- MODAL CONFIRMAÇÃO REFRESH -->
+<div id="confirmModal" class="modal-overlay">
+    <div class="modal-box">
+        <p>🧹 Você tem certeza que quer apagar todo o texto?</p>
+        <div class="modal-buttons">
+            <button id="modalCancel" class="modal-btn modal-btn-cancel">Cancelar</button>
+            <button id="modalConfirm" class="modal-btn modal-btn-confirm">OK, apagar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- ELEMENTOS ----------
+        const textarea = document.getElementById('resultArea');
+        const btnTensao = document.getElementById('btnTensao');
+        const btnFalhaMedo = document.getElementById('btnFalhaMedo');
+        const btnSucessoMedo = document.getElementById('btnSucessoMedo');
+        const btnSucessoEsperanca = document.getElementById('btnSucessoEsperanca');
+        const btnFalhaEsperanca = document.getElementById('btnFalhaEsperanca');
+        const btnReviravolta = document.getElementById('btnReviravolta');
+        const btnRefresh = document.getElementById('btnRefresh');
+        const modal = document.getElementById('confirmModal');
+        const modalCancel = document.getElementById('modalCancel');
+        const modalConfirm = document.getElementById('modalConfirm');
+
+        // ---------- TABELAS ----------
+        // Tensão da cena
+        const tabelaTensao = [
+            "1- Você joga uma reviravolta",
+            "2- Ofereça uma escolha difícil que compete com os objetivos/prioridades",
+            "3- Adicione um desafio a uma habilidade do(s) Personagem(ns)",
+            "4- Você joga a lista de tramas",
+            "5- Intensifique uma complicação já existente",
+            "6- Você joga uma reviravolta",
+            "7- Suas ações causam danos colaterais diretos ou futuros",
+            "8- Avance um objetivo (jogue a lista ou escolha para saber qual)"
+        ];
+
+        // Falha com Medo
+        const tabelaFalhaMedo = [
+            "1- Uma oportunidade é permanentemente retirada.",
+            "2- Surge um adversário e o foco vai imediatamente para ele.",
+            "3- A situação piora dramaticamente. O ambiente muda e você é obrigado a agir contra seu interesse.",
+            "4- Use uma nova trama contra o(s) personagem(s).",
+            "5- Sorteie uma reviravolta.",
+            "6- Sua tentativa quebra alvo valioso para a trama ou você ou NPCs próximos ganham danos colaterais. *",
+            "7- Sorteie duas opções da tabela. Se a mesma sair em dobro, intensifique seus efeitos.",
+            "8- Use uma história prévia do personagem contra ele."
+        ];
+
+        // Sucesso com Medo
+        const tabelaSucessoMedo = [
+            "1- Há um custo *",
+            "2- Você atrai atenção indesejada.",
+            "3- Aparece um adversário ou uma adversidade adicional",
+            "4- Você consegue apenas parte do que deseja",
+            "5- O ambiente muda e acontece uma coincidência que te traz uma desvantagem"
+        ];
+
+        // Sucesso com Esperança / Falha com Esperança (mesma base)
+        const tabelaEsperanca = [
+            "1- Uma diferente abordagem se apresenta. *",
+            "2- Você ganha uma nova informação ou tem uma inspiração valiosa.",
+            "3- Aparece um aliado útil ou um NPC necessitado.",
+            "4- O contexto atual se torna mais favorável.",
+            "5- Você ouve, vê, cheira ou sente algo no ambiente que pode te favorecer.",
+            "6- O ambiente muda e acontece uma coincidência a seu favor."
+        ];
+
+        // Reviravolta (20 opções)
+        const tabelaReviravolta = [
+            "1- Era tudo uma manobra de distração.",
+            "2- Um segredo obscuro é revelado.",
+            "3- Uma armadilha é acionada.",
+            "4- Uma suposição revela-se falsa.",
+            "5- Uma aliança secreta é revelada.",
+            "6- Suas ações beneficiam um inimigo.",
+            "7- Alguém retorna inesperadamente.",
+            "8- Um inimigo mais perigoso é revelado.",
+            "9- Você e um inimigo compartilham um objetivo comum.",
+            "10- Uma verdadeira identidade é revelada.",
+            "11- Você é traído por alguém em quem confiava.",
+            "12- Você chegou tarde demais.",
+            "13- O verdadeiro inimigo é revelado.",
+            "14- O inimigo ganha novos aliados.",
+            "15- Um novo perigo aparece.",
+            "16- Alguém ou algo desaparece.",
+            "17- A verdade sobre um relacionamento é revelada.",
+            "18- Duas situações aparentemente não relacionadas mostram-se conectadas.",
+            "19- Poderes ou habilidades inesperados são revelados.",
+            "20- Jogue mais duas vezes nesta tabela. Ambos os resultados ocorrem. Se for o mesmo resultado, torne-o mais dramático."
+        ];
+
+        // ---------- TEXTOS ADICIONAIS (asterisco) ----------
+        const textoAdicionalFalhaMedo =
+            "\n\n* Exemplo: você ganha a condição MÁ REPUTAÇÃO entre os NPCs, ganha alguma condição de DESVANTAGEM MÍSTICA, algum item valioso é perdido/quebrado ou algum NPC importante é colocado em perigo ou é ferido. Estes efeitos poderão ser retirados como um novo objetivo/trama.";
+
+        const textoAdicionalSucessoMedo =
+            "\n\n* Pode ter sido uma ação cansativa, marque 1 PF, ou alguém cobra/pede algo em troca (ação social), ou comece/avance um temporizador de adversidade existente. Escolha o que mais se adequar ao contexto.";
+
+        const textoAdicionalEsperanca =
+            "\n\n* Você pode ter falhado, mas ainda terá uma nova oportunidade para fazer um novo teste. Exemplo, você tentou convencer um mercador a te vender um artefato raro e falhou na negociação, entretanto, o mercador se vira para um novo comprador que entra na loja, distraindo-o. Você aproveitaria a oportunidade para surrupiar o artefato usando sua furtividade?\nNo caso de sucesso você terá uma vantagem vinda na forma de uma nova oportunidade. No exemplo do negociante, além de ele estar disposto a vender o item raro, ele pode pensar erroneamente que se trata de um objeto amaldiçoado e está louco para passar para frente por um preço bem mais barato.";
+
+        // ---------- FUNÇÕES AUXILIARES ----------
+        function getRandomIndex(arr) {
+            return Math.floor(Math.random() * arr.length);
+        }
+
+        // Adiciona texto ao final da caixa (preserva histórico)
+        function appendToResult(text) {
+            let current = textarea.value;
+            if (current.trim() === "") {
+                textarea.value = text;
+            } else {
+                textarea.value = current + "\n\n══════════════════════════════════\n\n" + text;
+            }
+            // scroll automático para o final
+            textarea.scrollTop = textarea.scrollHeight;
+        }
+
+        // Função principal para tratar cada botão
+        // Tensão
+        function handleTensao() {
+            const idx = getRandomIndex(tabelaTensao);
+            let resultado = `🎲 TESTE DE TENSÃO DA CENA\n${tabelaTensao[idx]}`;
+            appendToResult(resultado);
+        }
+
+        // Falha com Medo (trata opção 6 e 7)
+        function handleFalhaMedo() {
+            const idx = getRandomIndex(tabelaFalhaMedo);
+            let base = tabelaFalhaMedo[idx];
+            let resultado = `😨 FALHA COM MEDO\n${base}`;
+
+            if (idx === 5) { // opção 6 (com asterisco)
+                resultado += textoAdicionalFalhaMedo;
+            }
+            else if (idx === 6) { // opção 7: sortear duas opções
+                const i1 = getRandomIndex(tabelaFalhaMedo);
+                const i2 = getRandomIndex(tabelaFalhaMedo);
+                let dupla = `🔁 Duas opções sorteadas:\n1- ${tabelaFalhaMedo[i1]}\n2- ${tabelaFalhaMedo[i2]}`;
+                if (i1 === i2) dupla += `\n\n(❗ a mesma opção em dobro — intensifique seus efeitos!)`;
+                resultado = `😨 FALHA COM MEDO (sorteio duplo)\n${dupla}`;
+            }
+            appendToResult(resultado);
+        }
+
+        // Sucesso com Medo
+        function handleSucessoMedo() {
+            const idx = getRandomIndex(tabelaSucessoMedo);
+            let base = tabelaSucessoMedo[idx];
+            let resultado = `😰 SUCESSO COM MEDO\n${base}`;
+            if (idx === 0) { // opção 1 com *
+                resultado += textoAdicionalSucessoMedo;
+            }
+            appendToResult(resultado);
+        }
+
+        // Sucesso com Esperança
+        function handleSucessoEsperanca() {
+            const idx = getRandomIndex(tabelaEsperanca);
+            let base = tabelaEsperanca[idx];
+            let resultado = `✨ SUCESSO COM ESPERANÇA\n${base}`;
+            if (idx === 0) { // opção 1 com asterisco
+                resultado += textoAdicionalEsperanca;
+            }
+            appendToResult(resultado);
+        }
+
+        // Falha com Esperança (mesma tabela e tratamento)
+        function handleFalhaEsperanca() {
+            const idx = getRandomIndex(tabelaEsperanca);
+            let base = tabelaEsperanca[idx];
+            let resultado = `🌟 FALHA COM ESPERANÇA\n${base}`;
+            if (idx === 0) {
+                resultado += textoAdicionalEsperanca;
+            }
+            appendToResult(resultado);
+        }
+
+        // REVIRAVOLTA (trata opção 20)
+        function handleReviravolta() {
+            const idx = getRandomIndex(tabelaReviravolta);
+            let base = tabelaReviravolta[idx];
+            let resultado = `🌀 REVIRAVOLTA\n${base}`;
+
+            if (idx === 19) { // opção 20 "Jogue mais duas vezes"
+                const i1 = getRandomIndex(tabelaReviravolta);
+                const i2 = getRandomIndex(tabelaReviravolta);
+                let dupla = `🔁 SORTEIO DUPLO (regra opção 20):\n1- ${tabelaReviravolta[i1]}\n2- ${tabelaReviravolta[i2]}`;
+                if (i1 === i2) dupla += `\n\n✨ Mesmo resultado — torne-o ainda mais dramático!`;
+                resultado = `🌀 REVIRAVOLTA (efeito duplo)\n${dupla}`;
+            }
+            appendToResult(resultado);
+        }
+
+        // REFRESH com modal de confirmação
+        function showModal() {
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        function clearTextarea() {
+            textarea.value = "";
+            closeModal();
+        }
+
+        // ---------- EVENTOS DOS BOTÕES ----------
+        btnTensao.addEventListener('click', handleTensao);
+        btnFalhaMedo.addEventListener('click', handleFalhaMedo);
+        btnSucessoMedo.addEventListener('click', handleSucessoMedo);
+        btnSucessoEsperanca.addEventListener('click', handleSucessoEsperanca);
+        btnFalhaEsperanca.addEventListener('click', handleFalhaEsperanca);
+        btnReviravolta.addEventListener('click', handleReviravolta);
+
+        btnRefresh.addEventListener('click', showModal);
+
+        // Modal: cancelar e confirmar
+        modalCancel.addEventListener('click', closeModal);
+        modalConfirm.addEventListener('click', clearTextarea);
+
+        // fechar modal ao clicar no overlay (opcional, mas bom)
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) closeModal();
+        });
+
+        // Mensagem inicial amigável
+        textarea.value = "🎭 Bem-vindo ao sorteador narrativo!\n\nClique em qualquer botão acima para gerar tensão, reviravoltas, falhas ou sucessos com medo/esperança.\n\nOs resultados aparecerão aqui, com detalhes extras quando houver asterisco (*).\n\n• Refresh apaga TODO o conteúdo (com confirmação).\n\nQue o acaso guie sua história!";
+    })();
+</script>
+</body>
+</html>
