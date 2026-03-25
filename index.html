@@ -499,5 +499,12 @@
         textarea.value = "🎭 Bem-vindo ao sorteador narrativo!\n\nClique em qualquer botão acima para gerar tensão, reviravoltas, falhas ou sucessos com medo/esperança.\n\nOs resultados aparecerão aqui, com detalhes extras quando houver asterisco (*).\n\n• Refresh apaga TODO o conteúdo (com confirmação).\n\nQue o acaso guie sua história!";
     })();
 </script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
+</script>
+
 </body>
 </html>
